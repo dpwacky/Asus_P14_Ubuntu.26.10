@@ -64,9 +64,12 @@ filesystem. The messages appear at about 2.6 seconds.
   `MOZ_ENABLE_WAYLAND=0`, `MOZ_DISABLE_RDD_SANDBOX=1`
 - Firefox under `/opt/firefox` if that browser is how video decode is shipped
 
-The 4 GiB GPU reservation is an EFI variable in NVRAM. It is already set on
-the machine this image was built for. A new machine needs
-`n1x-gpu-memory.service` once, then one reboot.
+The 4 GiB GPU reservation is the EFI variable `EXPOSED_DISP_FRM` in NVRAM.
+Booting this image writes it when the firmware layout matches. It is already
+set on the machine this image was built for. A new machine needs
+`n1x-gpu-memory.service` once, then one reboot. Wiping the NVMe or
+reinstalling does not restore the firmware's 62.5 GiB value. See
+[memory.md](memory.md) before you erase a disk.
 
 ## Live-only behaviour
 

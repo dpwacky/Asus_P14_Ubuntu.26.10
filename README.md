@@ -70,10 +70,11 @@ On the live desktop, after GRUB option 3:
 - Wi-Fi, Bluetooth and Ethernet on a USB adapter work.
 - The webcam works.
 - The GNOME desktop runs on the NVIDIA GPU. `gnome-shell` and Xwayland are GPU clients.
+- The GNOME brightness slider changes the panel brightness.
 
 ## What does not work yet
 
-- Screen brightness does not work. The brightness keys do not change the panel, and neither does the GNOME brightness slider.
+- The screen brightness keys do not change the panel. Use the GNOME brightness slider.
 - Video playback is not smooth. 1080p is only just usable. 4K stutters. The desktop itself is on the NVIDIA GPU. That is not the same as a finished video path. Firefox 143 shows each frame through XWayland, so the picture is copied through main memory. Chromium on Wayland is clearly better and still hitches: the snap does not receive `libnvidia-rmapi-tegra`, so it builds the picture on the CPU and hands the result to GNOME. An Intel laptop on Ubuntu 24.04 has a finished media path. This beta does not. Details are in [docs/desktop.md](docs/desktop.md).
 
 Firmware lines that remain in `dmesg` after a successful boot are listed in
@@ -139,6 +140,20 @@ installer is the normal desktop installer and should open on its own.
 SSH on the stick, if you need it: user `n1x`, password `n1x2026`, sudo
 without a password. That account is created while the stick is running. It
 is not copied onto the installed system.
+
+## This image writes an EFI variable, and the value stays
+
+Booting this image writes the EFI variable `EXPOSED_DISP_FRM`. BIOS
+H7407BA.303 reserves about 62.5 GiB for a Windows GPU heap. When the
+firmware layout matches, the image sets that reservation to 4 GiB. The new
+size takes effect on the next boot, and usable memory then goes up to
+112 GB.
+
+The variable is stored in NVRAM, not on the disk. Wiping the NVMe,
+reinstalling Ubuntu, or putting Windows back does not restore the 62.5 GiB
+value. The laptop keeps the 4 GiB reservation until something writes the
+variable again. Read this before you install. The layout and the script are
+in [docs/memory.md](docs/memory.md).
 
 ## Install onto the NVMe
 
@@ -207,9 +222,9 @@ up to 112 GB. 96 GB of that was tested. CUDA takes from the same pool, with
 the 64-bit calls (`cuMemAlloc_v2` and the matching memset, copy, free and
 context calls).
 
-The variable lives in NVRAM, not in the root filesystem. A machine that
-already has the 4 GiB value keeps it. Details are in
-[docs/memory.md](docs/memory.md).
+The variable lives in NVRAM, not in the root filesystem. A reinstall does
+not put the 62.5 GiB reservation back. A machine that already has the 4 GiB
+value keeps it. Details are in [docs/memory.md](docs/memory.md).
 
 ## Credits and how to build it
 

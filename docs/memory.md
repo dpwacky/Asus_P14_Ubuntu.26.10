@@ -23,7 +23,8 @@ match what the firmware shipped; any other layout is left alone.
 redirect (`O_TRUNC`, and the write must be one `write()`). The script writes
 through Python. The new size takes effect at the next boot.
 `n1x-gpu-memory.service` runs it once per boot and does nothing when the
-value is already 4 GiB.
+value is already 4 GiB. The variable is in NVRAM. Wiping the disk,
+reinstalling Ubuntu, or restoring Windows leaves the 4 GiB value in place.
 
 On the 2026-10-20 boot after that write, `MemTotal` was 120.3 GiB. The early
 kernel line was `Memory: 125505320K/133845504K available` with about 7.7 GiB
