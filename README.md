@@ -77,7 +77,7 @@ On the live desktop, after GRUB option 3:
 ## What does not work yet
 
 - The screen brightness keys do not change the panel. Use the GNOME brightness slider.
-- Video playback is not smooth. 1080p is only just usable. 4K stutters. The desktop itself is on the NVIDIA GPU. That is not the same as a finished video path. Firefox 143 shows each frame through XWayland, so the picture is copied through main memory. Chromium on Wayland is clearly better and still hitches: the snap does not receive `libnvidia-rmapi-tegra`, so it builds the picture on the CPU and hands the result to GNOME. An Intel laptop on Ubuntu 24.04 has a finished media path. This beta does not. Details are in [docs/desktop.md](docs/desktop.md).
+- The image's video decoder does not allocate surfaces. It ships `nvidia-vaapi-driver` 0.0.16, which asks for local framebuffer memory on a GPU that has none, so NVDEC stays idle. After install, add [debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb](debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb). That is upstream 0.0.17 and uses system memory. On this laptop a 4K H.264 file then decoded on NVDEC. The package does not replace kernel `7.3.0-rc6-n1x+`. Firefox 143 still draws each frame through XWayland, so the browser picture is still copied through main memory after decode. Chromium on Wayland is smoother and still hitches: the snap does not receive `libnvidia-rmapi-tegra`, so it builds the picture on the CPU and hands the result to GNOME. Details are in [docs/desktop.md](docs/desktop.md) and [debs/README.md](debs/README.md).
 
 Firmware lines that remain in `dmesg` after a successful boot are listed in
 [docs/firmware-messages.md](docs/firmware-messages.md).
@@ -215,6 +215,18 @@ apt-mark showhold
 
 `uname -r` should print `7.3.0-rc6-n1x+`.
 
+The kernel package is already the one this laptop needs. The video fix is
+a userspace library, not a new kernel. After the install, add the VA-API
+package from [debs/](debs/README.md):
+
+```sh
+sudo dpkg -i nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb
+```
+
+That replaces `dri/nvidia_drv_video.so` and leaves `7.3.0-rc6-n1x+` in place.
+A kernel `.deb` is about 150 MB, past GitHub's file limit, and rebuilding
+the kernel does not contain this library.
+
 ## Memory
 
 The firmware ships a large GPU reservation (about 62.5 GiB). This image
@@ -255,3 +267,4 @@ The steps are in [docs/build.md](docs/build.md).
 - [What the installer keeps](docs/install.md)
 - [Firmware messages that stay in dmesg](docs/firmware-messages.md)
 - [What the image changes, and the files](docs/changes.md)
+- [Packages to add after install](debs/README.md)

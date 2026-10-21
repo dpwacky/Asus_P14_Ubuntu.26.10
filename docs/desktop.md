@@ -38,14 +38,27 @@ atomic modesetting and that a high priority EGL context was obtained.
 
 ## VA-API and Firefox
 
-Playback in the browsers is not smooth. 1080p is only just usable. 4K
-stutters. The notes below are the driver setup, not a claim that video
-feels finished.
+`LIBVA_DRIVER_NAME=nvidia`. The image file
+`dri/nvidia_drv_video.so` is `nvidia-vaapi-driver` 0.0.16, together with
+`libnvcuvid.so.1` and `vdpau/libvdpau_nvidia.so.1` from the 615.78.08 tree.
+`vainfo` lists AV1, HEVC, H.264 and VP9 on the direct backend. That list is
+only the capability probe. 0.0.16 then allocates each surface as local
+framebuffer memory. This GPU reports a zero framebuffer (unified memory),
+the allocation is rejected, and NVDEC stays at 0%.
 
-`LIBVA_DRIVER_NAME=nvidia`. `dri/nvidia_drv_video.so` from
-`nvidia-vaapi-driver`, together with `libnvcuvid.so.1` and
-`vdpau/libvdpau_nvidia.so.1` from the 615.78.08 tree. `vainfo` lists AV1,
-HEVC, H.264 and VP9 on the direct backend.
+Upstream 0.0.17 detects `IS_ZERO_FB` and allocates those surfaces from
+system memory. The arm64 package is
+[debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb](../debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb).
+Install it with `dpkg -i` after Ubuntu is on the NVMe. The running kernel
+stays `7.3.0-rc6-n1x+`. On this laptop, 0.0.16 logged
+`Unable to realise surface` for a 1920x1088 frame. The same file with
+0.0.17 decoded, and a 3840x2160 H.264 stream drove the NVDEC clock
+(decoder utilisation about 70% during the run).
+
+Playback in Firefox is still a separate limit. Firefox 143 shows each
+decoded frame through XWayland, so the picture is copied through main
+memory. Chromium on Wayland is smoother and still hitches, because the
+snap does not receive `libnvidia-rmapi-tegra` and composites on the CPU.
 
 Firefox 143 is the Mozilla aarch64 tarball in `/opt/firefox`. The menu
 entry is `/usr/local/share/applications/firefox_firefox.desktop` and starts

@@ -181,6 +181,18 @@ not wait on it. Geoclue's start timeout is cut from 90 seconds to 10.
 Password login over SSH is enabled for the live `n1x` account. That account
 is not copied onto the installed system.
 
+## VA-API driver package
+
+[debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb](../debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb)
+
+This file is not inside the ISO. The image carries unpackaged
+`nvidia-vaapi-driver` 0.0.16, which cannot allocate decode surfaces on the
+N1X. The package is upstream tag `v0.0.17`, cross-built on the 9950X3D2
+workstation, and it replaces
+`/usr/lib/aarch64-linux-gnu/dri/nvidia_drv_video.so` after install.
+`sudo dpkg -i` is enough. It does not upgrade or replace
+`linux-image-7.3.0-rc6-n1x`. See [debs/README.md](../debs/README.md).
+
 ## What is not in `overlay/`
 
 The kernel is Ubuntu 7.3.0-9.9 plus the Omarchy N1X series plus Josephine's
