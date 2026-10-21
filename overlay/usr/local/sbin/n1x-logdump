@@ -1,0 +1,81 @@
+#!/bin/sh
+# Dump boot diagnostics to the N1XLOG partition on the live USB stick.
+# Runs as root from n1x-logdump.service; safe to run by hand as well.
+set -u
+
+TAG="${1:-boot}"
+LABEL=N1XLOG
+MNT=/mnt/n1xlog
+
+dev=$(blkid -L "$LABEL" 2>/dev/null || readlink -f "/dev/disk/by-label/$LABEL" 2>/dev/null)
+if [ -z "$dev" ] || [ ! -b "$dev" ]; then
+    echo "n1x-logdump: no block device labelled $LABEL" >&2
+    exit 0
+fi
+
+# The live ISO is mounted on the whole stick. Opening one of its partitions
+# then fails with "Can't open blockdev", and a retry loop prints that once
+# per second. Keep the dump on the writable overlay in that case.
+disk=$(lsblk -ndo PKNAME "$dev" 2>/dev/null || true)
+if [ -n "$disk" ] && grep -q "^/dev/$disk " /proc/mounts; then
+    echo "n1x-logdump: $disk is the live disk; not mounting $dev" >&2
+    MNT=/var/log/n1x
+    mkdir -p "$MNT"
+elif ! mountpoint -q "$MNT"; then
+    mkdir -p "$MNT"
+    if ! mount -t vfat -o rw,umask=000 "$dev" "$MNT"; then
+        echo "n1x-logdump: mount $dev failed, using /var/log/n1x" >&2
+        MNT=/var/log/n1x
+        mkdir -p "$MNT"
+    fi
+fi
+
+stamp=$(date +%Y%m%d-%H%M%S)
+out="$MNT/n1x-$stamp-$TAG"
+mkdir -p "$out"
+
+run() { # run <file> <cmd...>
+    f="$1"; shift
+    { "$@" ; } > "$out/$f" 2>&1 || true
+}
+
+run cmdline.txt cat /proc/cmdline
+run uname.txt uname -a
+run bios.txt sh -c 'for f in bios_vendor bios_version bios_date board_name product_name product_version; do printf "%s=%s\n" "$f" "$(cat /sys/class/dmi/id/$f 2>/dev/null)"; done'
+run dmesg.txt dmesg -T
+run dmesg-raw.txt dmesg
+run journal.txt journalctl -b --no-pager -o short-monotonic
+run journal-err.txt journalctl -b -p err --no-pager
+run failed-units.txt systemctl --failed --no-pager
+run lsmod.txt lsmod
+run lspci.txt lspci -nnvk
+run lsusb.txt lsusb
+run lsusb-tree.txt lsusb -t
+run iomem.txt cat /proc/iomem
+run interrupts.txt cat /proc/interrupts
+run input-devices.txt cat /proc/bus/input/devices
+run rfkill.txt rfkill list
+run nmcli.txt nmcli dev
+run bluetooth.txt timeout 10 bluetoothctl list
+run nvidia-smi.txt timeout 20 nvidia-smi -q
+run modprobe-i2c.txt sh -c 'modprobe -v i2c_mt65xx; modprobe -v i2c_hid_acpi; modprobe -v hid_asus; dmesg | grep -iE "i2c|hid|pwrap|sspm|mt65xx" | tail -80'
+
+# sysfs views of the keyboard chain and platform devices
+run acpi-devices.txt sh -c 'for d in /sys/bus/acpi/devices/*; do printf "%s hid=%s status=%s path=%s driver=%s\n" "$(basename $d)" "$(cat $d/hid 2>/dev/null)" "$(cat $d/status 2>/dev/null)" "$(cat $d/path 2>/dev/null)" "$(basename $(readlink $d/physical_node/driver 2>/dev/null) 2>/dev/null)"; done'
+run platform-drivers.txt sh -c 'for d in /sys/bus/platform/drivers/*; do printf "%s: %s\n" "$(basename $d)" "$(ls $d | grep -vE "^(bind|unbind|uevent|module)$" | tr "\n" " ")"; done'
+run i2c.txt sh -c 'ls -la /sys/bus/i2c/devices/ 2>&1; for d in /sys/bus/i2c/devices/*; do printf "%s name=%s modalias=%s driver=%s\n" "$(basename $d)" "$(cat $d/name 2>/dev/null)" "$(cat $d/modalias 2>/dev/null)" "$(basename $(readlink $d/driver 2>/dev/null) 2>/dev/null)"; done'
+run hid.txt sh -c 'for d in /sys/bus/hid/devices/*; do printf "%s driver=%s\n" "$(basename $d)" "$(basename $(readlink $d/driver 2>/dev/null) 2>/dev/null)"; done'
+run udev-input.txt sh -c 'for d in /dev/input/event*; do udevadm info -q all "$d"; echo; done'
+run soc-mediatek.txt sh -c 'ls -R /sys/bus/platform/drivers/ | grep -iE "pwrap|sspm|mt65xx|mt8901|power_wrap" ; find /sys/devices -maxdepth 4 -iname "*NVDA*" 2>/dev/null'
+run firmware-files.txt sh -c 'ls -la /lib/firmware/mediatek/mt7925 /lib/firmware/cirrus | grep -iE "7925|104333a1"'
+run ip-addr.txt ip -br addr
+run ip-route.txt ip route
+run sshd.txt systemctl status ssh --no-pager
+run mounts.txt sh -c 'cat /proc/mounts; echo; df -h'
+
+# raw ACPI tables, so the DSDT/SSDTs can be decompiled offline
+mkdir -p "$out/acpi-tables"
+cp -r /sys/firmware/acpi/tables/. "$out/acpi-tables/" 2>/dev/null || true
+
+sync
+echo "n1x-logdump: wrote $out"

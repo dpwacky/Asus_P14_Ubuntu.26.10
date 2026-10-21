@@ -22,7 +22,9 @@ repository holders named in [docs/credits.md](docs/credits.md), and to
 Cursor (Grok and Claude) and ChatGPT for the vibe-coding work. There is
 no personal credit on that page.
 How the ISO was built, and on which workstation, is in
-[docs/build.md](docs/build.md).
+[docs/build.md](docs/build.md). The files added on top of Ubuntu, and why
+each one is there, are in [docs/changes.md](docs/changes.md). The files
+themselves are in [overlay/](overlay/).
 
 ## Update the BIOS to 303 first
 
@@ -252,3 +254,4 @@ The steps are in [docs/build.md](docs/build.md).
 - [Memory](docs/memory.md)
 - [What the installer keeps](docs/install.md)
 - [Firmware messages that stay in dmesg](docs/firmware-messages.md)
+- [What the image changes, and the files](docs/changes.md)

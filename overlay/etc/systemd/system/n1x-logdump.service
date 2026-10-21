@@ -1,0 +1,12 @@
+[Unit]
+Description=N1X live diagnostics dump
+# Live media only. An installed system has no /cdrom and must not wait on this.
+ConditionPathIsDirectory=/cdrom
+ConditionPathExists=/usr/local/sbin/n1x-logdump
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/n1x-logdump boot
+ExecStop=/usr/local/sbin/n1x-logdump shutdown

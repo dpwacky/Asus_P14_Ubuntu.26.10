@@ -1,0 +1,38 @@
+# Keep archive kernels and the Ubuntu NVIDIA driver stack from replacing
+# the N1X image. Locally installed packages have no origin and are not matched.
+
+Package: linux-generic*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: linux-image-*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: linux-headers-*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: linux-modules-*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: linux-main-modules-*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: nvidia-driver-*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: libnvidia-*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: nvidia-kernel-*
+Pin: release o=Ubuntu
+Pin-Priority: -1
+
+Package: nvidia-utils-*
+Pin: release o=Ubuntu
+Pin-Priority: -1

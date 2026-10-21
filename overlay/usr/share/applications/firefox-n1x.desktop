@@ -1,0 +1,12 @@
+[Desktop Entry]
+NoDisplay=true
+Version=1.0
+Name=Firefox
+Comment=Web browser with NVIDIA VA-API decode
+Exec=env MOZ_ENABLE_WAYLAND=0 /opt/firefox/firefox %u
+Icon=/opt/firefox/browser/chrome/icons/default/default128.png
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=text/html;x-scheme-handler/http;x-scheme-handler/https;
+StartupWMClass=firefox

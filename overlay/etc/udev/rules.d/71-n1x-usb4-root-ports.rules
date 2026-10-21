@@ -1,0 +1,2 @@
+# N1x: the USB4 tunnel root ports cannot wake for a hotplug, so keep them out of runtime suspend.
+ACTION=="add|bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{device}=="0x22cf", ATTR{power/control}="on"

@@ -1,0 +1,13 @@
+[Unit]
+Description=Shrink the N1x firmware GPU memory reservation to 4 GiB
+After=local-fs.target
+ConditionPathExists=/sys/firmware/efi/efivars
+ConditionPathExists=/usr/local/sbin/n1x-gpu-memory
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/n1x-gpu-memory
+
+[Install]
+WantedBy=multi-user.target

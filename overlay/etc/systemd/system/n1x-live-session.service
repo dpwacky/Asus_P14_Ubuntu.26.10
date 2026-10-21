@@ -1,0 +1,13 @@
+[Unit]
+Description=Live session login and desktop device groups
+Before=gdm.service ssh.service
+After=systemd-user-sessions.service
+ConditionPathExists=/usr/local/sbin/n1x-live-session
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/n1x-live-session
+
+[Install]
+WantedBy=multi-user.target

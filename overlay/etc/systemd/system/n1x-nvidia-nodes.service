@@ -1,0 +1,15 @@
+[Unit]
+Description=Create NVIDIA device nodes before the display manager
+After=dev-dri-card0.device
+Before=gdm.service
+ConditionPathExists=/usr/bin/nvidia-modprobe
+# If the GPU never appears, fail this job and let GDM continue.
+JobTimeoutSec=25
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/nvidia-modprobe -c0 -u
+
+[Install]
+WantedBy=graphical.target

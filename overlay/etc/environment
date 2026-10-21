@@ -1,0 +1,5 @@
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+LIBVA_DRIVER_NAME=nvidia
+MOZ_DISABLE_RDD_SANDBOX=1
+# Menu Firefox is /usr/local/share/applications/firefox_firefox.desktop.
+# It starts /opt/firefox on XWayland. The Firefox snap cannot load libnvidia-rmapi-tegra.

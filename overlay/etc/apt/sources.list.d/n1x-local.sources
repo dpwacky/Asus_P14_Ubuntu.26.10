@@ -1,0 +1,6 @@
+# N1X kernel package shipped on this ISO. Origin is N1X, so the
+# Ubuntu pin on linux-image-* does not apply to it.
+Types: deb
+URIs: file:///cdrom/n1x-local
+Suites: ./
+Trusted: yes

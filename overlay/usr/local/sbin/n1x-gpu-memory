@@ -1,0 +1,68 @@
+#!/bin/sh
+# Shrink the N1x firmware GPU reservation from 62.5 GiB to 4 GiB.
+# EXPOSED_DISP_FRM is the variable NVIDIA and the OEMs agreed on. The first
+# four data bytes are the reservation in MiB; the last byte asks the firmware
+# to apply it. Takes effect at the next boot. Leaves any other layout alone.
+set -u
+
+VAR="/sys/firmware/efi/efivars/EXPOSED_DISP_FRM-4b086294-0740-4f71-a7b5-85a329c7ec5f"
+# 4 attribute bytes, then 0x1000 MiB, the shipped middle, and the apply flag.
+WANT="07 00 00 00 00 10 00 00 00 00 00 20 00 00 00 00 00 00 00 00 01 00 00 00 01"
+LAYOUT="00 00 00 20 00 00 00 00 00 00 00 00 01 00 00 00"
+
+if [ ! -f "$VAR" ]; then
+    echo "n1x-gpu-memory: no EXPOSED_DISP_FRM" >&2
+    exit 0
+fi
+
+bytes=$(od -An -v -tx1 "$VAR" | tr '\n' ' ' | sed 's/  */ /g; s/^ //; s/ $//')
+set -- $bytes
+n=$#
+if [ "$n" -ne 25 ]; then
+    echo "n1x-gpu-memory: unexpected length $n, leaving it alone" >&2
+    exit 0
+fi
+
+current="$*"
+if [ "$current" = "$WANT" ]; then
+    echo "n1x-gpu-memory: reservation already 4 GiB"
+    exit 0
+fi
+
+# Bytes 8..23 (0-based) are the layout between the size and the apply flag.
+mid=$(echo "$current" | cut -d' ' -f9-24)
+if [ "$mid" != "$LAYOUT" ]; then
+    echo "n1x-gpu-memory: layout is not the one NVIDIA described, leaving it alone" >&2
+    exit 0
+fi
+
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+# Write the bytes directly. A command substitution would stop at the first NUL.
+printf '\x07\x00\x00\x00\x00\x10\x00\x00\x00\x00\x00\x20\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01' > "$tmp"
+
+chattr -i "$VAR" || exit 1
+# efivarfs rejects a shell redirect: it truncates, and the write must be one
+# syscall. Python opens the variable without O_TRUNC.
+if ! python3 - "$VAR" "$tmp" <<'PY'
+import os, sys
+var, src = sys.argv[1], sys.argv[2]
+data = open(src, "rb").read()
+fd = os.open(var, os.O_WRONLY)
+try:
+    os.write(fd, data)
+finally:
+    os.close(fd)
+PY
+then
+    chattr +i "$VAR" || true
+    echo "n1x-gpu-memory: firmware refused the write" >&2
+    exit 1
+fi
+chattr +i "$VAR" || true
+
+if ! cmp -s "$tmp" "$VAR"; then
+    echo "n1x-gpu-memory: value did not stick" >&2
+    exit 1
+fi
+echo "n1x-gpu-memory: set reservation to 4 GiB; takes effect at the next boot"

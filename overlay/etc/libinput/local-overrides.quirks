@@ -1,0 +1,12 @@
+# ASUS ProArt P14 H7407BA: the PixArt 093A:4F02 touchpad reports pressure in
+# 0..65535 with live values between 0 and a few hundred, so libinput's default
+# touch (30/25) and palm (130) pressure thresholds drop or palm-reject most
+# touches. Same fix as the P16 (093A:4F01) quirk in archlinuxarm-proart-p16.
+[ASUS ProArt P14 H7407BA PixArt touchpad pressure]
+MatchBus=i2c
+MatchVendor=0x093A
+MatchProduct=0x4F02
+MatchUdevType=touchpad
+MatchDMIModalias=dmi:*:svnASUS:pnProArtP14H7407BA:*
+AttrPressureRange=none
+AttrPalmPressureThreshold=0

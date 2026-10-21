@@ -1,0 +1,11 @@
+[Unit]
+Description=Dump N1X diagnostics after the desktop has started
+ConditionPathIsDirectory=/cdrom
+
+[Timer]
+# Not ordered before multi-user. The old oneshot slept 145s on that path.
+OnBootSec=20
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target
