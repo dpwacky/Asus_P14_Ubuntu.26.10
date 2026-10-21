@@ -80,8 +80,8 @@ The 4K check was made on the previous 64 MiB kernel, `7.3.0-rc6-n1x-64m+`,
 which uses the same order. One second of 3840x2160 H.264, decoded with
 VA-API into VA-API frames, finished at about 3.4 times realtime. `dmesg`
 had zero `NV_ERR_NO_MEMORY` lines. That is the allocation which used to
-fail. On this laptop, 4K playback in Firefox 158 is smooth once a 64 MiB
-kernel is running. 1440p was already smooth before it. This package does
+fail. Firefox frame counts on this kernel, including an 8K H.264
+pattern, are in [video.md](video.md). This package does
 not change that limit.
 
 The ISO is unchanged. A fresh install still boots `7.3.0-rc6-n1x+` until

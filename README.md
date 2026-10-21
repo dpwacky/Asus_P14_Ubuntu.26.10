@@ -76,7 +76,7 @@ On the live desktop, after GRUB option 3:
 - The webcam works.
 - The GNOME desktop runs on the NVIDIA GPU. `gnome-shell` and Xwayland are GPU clients.
 - The GNOME brightness slider changes the panel brightness.
-- Firefox video uses the NVIDIA decoder after the steps in [docs/video.md](docs/video.md) and the kernel package below. On this laptop, 1440p and 4K playback in Firefox 158 are smooth once that package is installed. The flashed image still has the older decoder, Firefox 143 and the 4 MiB kernel, so those steps come after the install.
+- Firefox 158 plays local H.264 on the NVIDIA decoder after the steps in [docs/video.md](docs/video.md) and the kernel package below. Measured on this laptop: 1080p, 4K and 8K test patterns, VA-API in the RDD process, one late first frame, then about 0.5 ms per frame. A few frames were dropped (13, 9 and 6 out of about 230). The CPU did not decode those frames. The ISO still ships Firefox 143, driver 0.0.16 and the 4 MiB kernel. On that combination 1080p was only just usable and 4K stuttered, because the frames were copied through XWayland and the 4K plane did not fit.
 
 ## What does not work yet
 
@@ -207,8 +207,8 @@ The ISO kernel is `7.3.0-rc6-n1x+`. Its largest physically contiguous
 block is 4 MiB, so a 4K video plane (about 8 MiB) and other single DMA
 buffers of that size fail. Install the follow-up package on the installed
 system, then reboot. It keeps the 64 MiB blocks, and it adds the USB4
-fixes in [docs/kernel.md](docs/kernel.md). On this laptop, 4K playback in
-Firefox is smooth after that reboot.
+fixes in [docs/kernel.md](docs/kernel.md). The Firefox numbers for 1080p,
+4K and 8K are in [docs/video.md](docs/video.md).
 
 Download:
 

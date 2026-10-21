@@ -59,9 +59,10 @@ The image menu still starts Firefox 143 with `MOZ_ENABLE_WAYLAND=0`,
 because that build crashes on mutter 51's `wp_image_description_v1`. Frames
 then travel through XWayland. Firefox 158 from the Mozilla aarch64 tarball,
 started with `MOZ_ENABLE_WAYLAND=1`, is a native Wayland client on the host
-NVIDIA libraries. On this laptop, 1440p playback in that Firefox is smooth.
-4K playback in the same Firefox is smooth after the kernel in
-[kernel.md](kernel.md).
+NVIDIA libraries. The counted run is in [video.md](video.md): 1080p, 4K
+and an 8K H.264 test pattern, VA-API in the RDD process, one late first
+frame, then about 0.5 ms per frame. A few frames were dropped. The CPU
+did not decode them.
 The Firefox snap and the Chromium snap never see
 `libnvidia-rmapi-tegra`, so installing them from the store leaves the page
 on the CPU. The exact downloads, the menu edits, and the Chrome `.deb`

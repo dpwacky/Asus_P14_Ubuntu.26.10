@@ -109,7 +109,7 @@ is hidden so there is one icon.
 `LIBVA_DRIVER_NAME=nvidia` selects `nvidia_drv_video.so`.
 `MOZ_DISABLE_RDD_SANDBOX=1` lets the decoder process open the render node.
 The policies lock hardware video decoding on for that Firefox 143 entry.
-Smooth 1440p and 4K playback is the Firefox 158 setup in
+The measured 1080p, 4K and 8K playback is the Firefox 158 setup in
 [video.md](video.md), after the kernel package, not this menu entry.
 See [desktop.md](desktop.md).
 

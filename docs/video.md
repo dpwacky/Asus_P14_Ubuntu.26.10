@@ -1,11 +1,41 @@
 # Video acceleration
 
 The GNOME desktop is already a native NVIDIA client. Browser video is a
-separate piece, and the Ubuntu snap store does not pick it up. On this
-laptop, 1440p playback in Firefox is smooth after the three steps below.
-Those three steps are userspace. They do not replace the kernel. A 4K
+separate piece, and the Ubuntu snap store does not pick it up. The three
+steps below are userspace. They do not replace the kernel. A 4K or 8K
 frame also needs a kernel that can allocate one block larger than 4 MiB.
 That package is [kernel.md](kernel.md), and it is not in the ISO.
+
+An older paragraph in this handbook said that 1080p is only just usable
+and that 4K stutters. That was Firefox 143 on the image kernel, drawing
+each frame through XWayland, with `nvidia-vaapi-driver` 0.0.16. The ISO
+still ships that combination. The measurement below is Firefox 158 after
+the three steps and the 64 MiB kernel.
+
+## What was measured
+
+Firefox 158.0.1, Wayland, `LIBVA_DRIVER_NAME=nvidia`,
+`MOZ_DISABLE_RDD_SANDBOX=1`, kernel `7.3.0-rc6-n1x-64m.2+`, on the internal
+2880x1800 panel. Each file is an 8 second, 30 fps H.264 test pattern made
+with libx264. The pattern compresses easily, so the bitrates are about
+1.5, 2.4 and 7.5 Mbit/s. This is not a YouTube 8K AV1 stream.
+
+The RDD log says `VA-API FFmpeg init successful` and
+`IsHardwareAccelerated=true`. Each decoded frame is logged as a VA-API
+frame. The first frame is late once. After that the decode time stays
+under 1 ms, against a 33 ms frame. `dmesg` had no `NV_ERR_NO_MEMORY`.
+`nvidia-smi` decoder utilisation stayed low because the frames finish
+quickly, not because decode fell back to the CPU.
+
+| File | Dropped / presented, at 9 s | Playhead | First frame | Later frames, average |
+| --- | --- | --- | --- | --- |
+| 1920x1080 | 13 / 233 | 7.75 s of 8 s | 104 ms | 0.49 ms |
+| 3840x2160 | 9 / 231 | 7.64 s of 8 s | 184 ms | 0.45 ms |
+| 7680x4320 | 6 / 229 | 7.61 s of 8 s | 247 ms | 0.53 ms |
+
+The whole Firefox process tree still uses CPU. That is the browser and
+the compositor. The decoder log is the VA-API path above, at about half a
+millisecond a frame.
 
 ## Why a snap stays on the CPU
 
@@ -68,7 +98,7 @@ with the video clock near 2281 MHz.
 
 ## 2. Firefox 158 from the Mozilla tarball
 
-This is the browser that plays 1440p smoothly on this laptop. The download
+This is the browser in the measurement above. The download
 is the official aarch64 build, not the snap and not an `apt` package.
 Ubuntu 26.10's `firefox` package is only a wrapper that installs the snap.
 
@@ -101,7 +131,8 @@ The same prefix belongs on the `--new-window`, `--private-window` and
 `--ProfileManager` lines. Quit any Firefox that is already open. A process
 started from 143 keeps the XWayland path until you close it. Then start
 Firefox from the menu. `nvidia-smi` lists `/opt/firefox-158/firefox` as a
-graphics client, and 1440p playback on this laptop is smooth.
+graphics client. The frame counts are in the measurement at the top of
+this page.
 
 ## 3. Chrome from a .deb, with an explicit GPU launch
 
@@ -157,5 +188,6 @@ luma plane is about 8 MiB, so 0.0.17 can decode and still log
 and reboot. `uname -r` is then `7.3.0-rc6-n1x-64m.2+`. That kernel raises
 the limit to 64 MiB. On this laptop, with that limit, one second of
 3840x2160 H.264 decoded through VA-API with no `NV_ERR_NO_MEMORY` in
-`dmesg`, and 4K playback in Firefox 158 is smooth.
+`dmesg`. The Firefox frame counts for 1080p, 4K and 8K are at the top of
+this page.
 The download and the checksum are in [kernel.md](kernel.md).

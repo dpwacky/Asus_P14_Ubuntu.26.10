@@ -51,6 +51,6 @@ part of the run, video clock around 2281 MHz).
 
 This package is the decoder half. The browsers still need a build that can
 see `libnvidia-rmapi-tegra`. The Firefox snap and the Chromium snap cannot.
-Firefox 158 from the Mozilla tarball, with Wayland left on, plays 1440p
-smoothly on this laptop once this package is installed. The downloads and
-the menu commands are in [docs/video.md](../docs/video.md).
+Firefox 158 from the Mozilla tarball, with Wayland left on, is the browser
+in the measurement in [docs/video.md](../docs/video.md). The downloads and
+the menu commands are there too.
