@@ -201,8 +201,15 @@ The working setup is Firefox 158 and the Chrome `.deb`, written up in
 
 ## What is not in `overlay/`
 
-The kernel is Ubuntu 7.3.0-9.9 plus the Omarchy N1X series plus Josephine's
-ACPI allocation patch. The tree is large and is not published here. Credit
-and the upstream links are in [credits.md](credits.md). The NVIDIA open
-modules and userspace are 615.78.08. Do not replace them with Ubuntu's
-`libnvidia-gl-615` (615.71.09).
+The kernel on the ISO is Ubuntu 7.3.0-9.9 plus the Omarchy N1X series plus
+Josephine's ACPI allocation patch, released as `7.3.0-rc6-n1x+`. The tree
+is large and is not published here. Credit and the upstream links are in
+[credits.md](credits.md). The NVIDIA open modules and userspace are
+615.78.08. Do not replace them with Ubuntu's `libnvidia-gl-615`
+(615.71.09).
+
+`linux-image-7.3.0-rc6-n1x-64m` is the same tree with
+`CONFIG_ARCH_FORCE_MAX_ORDER=14` (a 64 MiB physically contiguous block,
+instead of 4 MiB) and the NVIDIA open modules rebuilt for that release.
+It is a post-install package. It is not in the ISO and not in this
+repository: the `.deb` is about 185 MB. See [kernel.md](kernel.md).

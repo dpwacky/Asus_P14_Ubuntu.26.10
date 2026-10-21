@@ -3,7 +3,9 @@
 The GNOME desktop is already a native NVIDIA client. Browser video is a
 separate piece, and the Ubuntu snap store does not pick it up. On this
 laptop, 1440p playback in Firefox is smooth after the three steps below.
-The kernel stays `7.3.0-rc6-n1x+`. None of this is a kernel upgrade.
+Those three steps are userspace. They do not replace the kernel. A 4K
+frame also needs a kernel that can allocate one block larger than 4 MiB.
+That package is [kernel.md](kernel.md), and it is not in the ISO.
 
 ## Why a snap stays on the CPU
 
@@ -139,9 +141,19 @@ launcher the GPU process shows up in `nvidia-smi`.
 
 ## What the image itself still does
 
-The ISO is unchanged. It still ships driver 0.0.16 and Firefox 143 started
-with `MOZ_ENABLE_WAYLAND=0`, because 143 crashes as a Wayland client on
-this desktop. The steps above are what you run after the installer has
-finished. A later Ubuntu package of `nvidia-vaapi-driver` 0.0.17 or newer
-can replace `0.0.17-0n1x`. Leave the kernel pin alone, and leave the
-NVIDIA 615.78.08 libraries alone.
+The ISO is unchanged. It still ships driver 0.0.16, Firefox 143 started
+with `MOZ_ENABLE_WAYLAND=0`, and kernel `7.3.0-rc6-n1x+`. Version 143
+crashes as a Wayland client on this desktop, which is why the image menu
+keeps XWayland for that binary. The steps above are what you run after the
+installer has finished. A later Ubuntu package of `nvidia-vaapi-driver`
+0.0.17 or newer can replace `0.0.17-0n1x`. Leave the NVIDIA 615.78.08
+libraries alone.
+
+The image kernel's largest physically contiguous allocation is 4 MiB. A 4K
+luma plane is about 8 MiB, so 0.0.17 can decode and still log
+`NV_ERR_NO_MEMORY` for that plane. `linux-image-7.3.0-rc6-n1x-64m` raises
+the limit to 64 MiB. On this laptop, after that reboot, one second of
+3840x2160 H.264 decoded through VA-API with no `NV_ERR_NO_MEMORY` in
+`dmesg`. Firefox 4K was not played again on that boot. The RDD process can
+still use CPU to hand frames across, which is a different cost from the
+4 MiB ceiling. Details and the checksum are in [kernel.md](kernel.md).

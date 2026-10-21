@@ -36,6 +36,21 @@ The older kernel parameter `efi_reclaim_reserved=58G@8G` needs Omarchy patch
 favour of the EFI variable. Putting the parameter on the command line of
 this kernel does nothing.
 
+## One physical block, versus a CUDA mapping
+
+`cuMemAlloc_v2` builds a mapping from ordinary pages. A 16 GiB buffer and a
+90 GiB buffer were allocated on `7.3.0-rc6-n1x+`. That path is not limited
+to 4 MiB.
+
+A physically contiguous allocation is. On that kernel the largest buddy
+block is 4 MiB (`CONFIG_ARCH_FORCE_MAX_ORDER=10`, 4 KiB pages). The open
+NVIDIA driver uses that path for a VA-API frame plane and for other DMA
+buffers it will not split. A 4K luma plane is about 8 MiB and was rejected
+with `NV_ERR_NO_MEMORY` while most of the RAM was free.
+`linux-image-7.3.0-rc6-n1x-64m` raises the same limit to 64 MiB. The
+package, the check, and the fact that the ISO kernel is unchanged are in
+[kernel.md](kernel.md).
+
 ## CUDA
 
 `nvidia-smi` reports `Memory-Usage: Not Supported`. There is no discrete

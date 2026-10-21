@@ -1,8 +1,16 @@
 # Packages to install after Ubuntu is on the NVMe
 
-The ISO already boots kernel `7.3.0-rc6-n1x+`. These packages do not replace
-that kernel. `apt upgrade` still will not pull `linux-generic`, because of
-the pin in `overlay/etc/apt/preferences.d/n1x-kernel`.
+The ISO already boots kernel `7.3.0-rc6-n1x+`. The VA-API package below
+does not replace that kernel. `apt upgrade` still will not pull
+`linux-generic`, because of the pin in
+`overlay/etc/apt/preferences.d/n1x-kernel`.
+
+A second kernel, `linux-image-7.3.0-rc6-n1x-64m`, raises the largest
+physically contiguous allocation from 4 MiB to 64 MiB. The `.deb` is about
+185 MB, over GitHub's file limit, so it is not in this directory. The
+filename, the SHA256, and why the image kernel was not enough are in
+[docs/kernel.md](../docs/kernel.md). Installing it keeps
+`7.3.0-rc6-n1x+` in the GRUB menu.
 
 ## nvidia-vaapi-driver 0.0.17
 

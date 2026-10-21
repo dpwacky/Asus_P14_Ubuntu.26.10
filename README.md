@@ -26,7 +26,8 @@ How the ISO was built, and on which workstation, is in
 each one is there, are in [docs/changes.md](docs/changes.md). The files
 themselves are in [overlay/](overlay/). Video acceleration, and why the
 Firefox and Chromium snaps do not use the NVIDIA GPU, is in
-[docs/video.md](docs/video.md).
+[docs/video.md](docs/video.md). A later kernel that allows a 64 MiB
+physically contiguous allocation is in [docs/kernel.md](docs/kernel.md).
 
 ## Update the BIOS to 303 first
 
@@ -96,7 +97,8 @@ Firmware lines that remain in `dmesg` after a successful boot are listed in
 
 | Piece | Version |
 | --- | --- |
-| Kernel | `7.3.0-rc6-n1x+`, package `linux-image-7.3.0-rc6-n1x` |
+| Kernel on the ISO | `7.3.0-rc6-n1x+`, package `linux-image-7.3.0-rc6-n1x` |
+| Later kernel, not in the ISO | `7.3.0-rc6-n1x-64m+`, 64 MiB contiguous blocks. See [docs/kernel.md](docs/kernel.md) |
 | Base | Ubuntu 26.10 (7.3.0-9.9) plus the N1X platform patches |
 | NVIDIA open modules and userspace | 615.78.08 |
 | Desktop | Ubuntu 26.10 GNOME |
@@ -216,14 +218,22 @@ uname -r
 apt-mark showhold
 ```
 
-`uname -r` should print `7.3.0-rc6-n1x+`.
+`uname -r` on a fresh install should print `7.3.0-rc6-n1x+`.
 
-The kernel package is already the one this laptop needs. Video acceleration
-is userspace: a newer VA-API library, Firefox 158 from Mozilla's tarball,
-and Google Chrome from its `.deb`. The snaps do not see the NVIDIA library.
-The steps, and the result (smooth 1440p in Firefox on this laptop), are in
-[docs/video.md](docs/video.md). A kernel `.deb` is about 150 MB, past
-GitHub's file limit, and rebuilding the kernel does not contain that library.
+That kernel is held, and it is enough to boot and to run the desktop. It
+cannot hand out one physically contiguous block larger than 4 MiB. A 4K
+video plane is about 8 MiB, and the same ceiling applies to any other
+single DMA buffer of that size. Ordinary CUDA allocations are not one
+block, and they already worked. The follow-up package
+`linux-image-7.3.0-rc6-n1x-64m` raises the limit to 64 MiB and leaves the
+original kernel in the GRUB menu. Why, the checksum, and the install are in
+[docs/kernel.md](docs/kernel.md). The file is about 185 MB, past GitHub's
+limit, so it is not stored in this repository.
+
+Video decode still needs the userspace pieces: the 0.0.17 VA-API library,
+Firefox 158 from Mozilla's tarball, and Google Chrome from its `.deb`. The
+snaps do not see the NVIDIA library. Those steps are in
+[docs/video.md](docs/video.md).
 
 ## Memory
 
@@ -262,6 +272,7 @@ The steps are in [docs/build.md](docs/build.md).
 - [Boot command line](docs/boot.md)
 - [Desktop and GPU](docs/desktop.md)
 - [Video acceleration](docs/video.md)
+- [64 MiB contiguous kernel](docs/kernel.md)
 - [Memory](docs/memory.md)
 - [What the installer keeps](docs/install.md)
 - [Firmware messages that stay in dmesg](docs/firmware-messages.md)
