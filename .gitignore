@@ -1,0 +1,8 @@
+*.iso
+*.squashfs
+iso-out/
+iso-work/
+kernels/
+omarchy/
+omarchy-pkgs/
+upstream/
