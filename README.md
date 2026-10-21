@@ -77,6 +77,7 @@ On the live desktop, after GRUB option 3:
 - The GNOME desktop runs on the NVIDIA GPU. `gnome-shell` and Xwayland are GPU clients.
 - The GNOME brightness slider changes the panel brightness.
 - Firefox 158 plays local H.264 on the NVIDIA decoder after the steps in [docs/video.md](docs/video.md) and the kernel package below. Measured on this laptop: 1080p, 4K and 8K test patterns, VA-API in the RDD process, one late first frame, then about 0.5 ms per frame. A few frames were dropped (13, 9 and 6 out of about 230). The CPU did not decode those frames. The ISO still ships Firefox 143, driver 0.0.16 and the 4 MiB kernel. On that combination 1080p was only just usable and 4K stuttered, because the frames were copied through XWayland and the 4K plane did not fit.
+- One local vLLM server can serve Qwen3.6-35B-A3B (NVFP4) for daily work. It is not in the ISO. After a 64-token warmup, one stream of 512 tokens decoded at 84.7 tokens/s. Context is 128K, at most 4 sessions, speculative decoding off. See [A local model server](#a-local-model-server) and [docs/vllm.md](docs/vllm.md).
 
 ## What does not work yet
 
@@ -279,6 +280,26 @@ The variable lives in NVRAM, not in the root filesystem. A reinstall does
 not put the 62.5 GiB reservation back. A machine that already has the 4 GiB
 value keeps it. Details are in [docs/memory.md](docs/memory.md).
 
+## A local model server
+
+After the desktop is up, one Docker container serves
+`nvidia/Qwen3.6-35B-A3B-NVFP4` on `http://127.0.0.1:8000/v1`. It is not in
+the ISO. Qwen3.8-Flash-Next fills almost the whole 128 GB. This checkpoint
+is the smaller one from the same family: about 35 billion parameters, about
+3 billion active per token.
+
+The container is `vllm/vllm-openai:v0.32.0-aarch64`. Speculative decoding
+is off. Each request can use 131072 tokens of context, and the server
+admits at most 4 sequences. GPU memory use is capped at 40 percent so the
+desktop keeps the rest. On this laptop, 21 October 2026, a 64-token warmup
+was followed by one 512-token stream: first token at 167 ms, then 84.7
+tokens/s. Weights sat around 20 GiB and the KV cache around 21 GiB. About
+63 GB stayed available to the rest of the system.
+
+The install steps, the apt pin exception for the container libraries, the
+exact `docker run`, and the measurement are in
+[docs/vllm.md](docs/vllm.md).
+
 ## Credits and how to build it
 
 Credit goes to Ubuntu, to the Omarchy repositories (David Heinemeier
@@ -303,6 +324,7 @@ The steps are in [docs/build.md](docs/build.md).
 - [Boot command line](docs/boot.md)
 - [Desktop and GPU](docs/desktop.md)
 - [Video acceleration](docs/video.md)
+- [Local model server (vLLM)](docs/vllm.md)
 - [64 MiB contiguous kernel](docs/kernel.md)
 - [Memory](docs/memory.md)
 - [What the installer keeps](docs/install.md)

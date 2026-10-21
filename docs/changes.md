@@ -235,3 +235,10 @@ repository: the `.deb` is about 185 MB. After the first boot from the
 NVMe, download it from
 [ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb)
 and install it. See [kernel.md](kernel.md).
+
+The vLLM container in [vllm.md](vllm.md) is post-install as well. Docker,
+the NVIDIA container toolkit and the model weights are not in the ISO and
+not in `overlay/`. The apt pin that protects `libnvidia-*` stays. Only
+`libnvidia-container1` and `libnvidia-container-tools` are excepted, so
+the container runtime can be installed without apt offering the Ubuntu
+driver.
