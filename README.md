@@ -24,7 +24,9 @@ no personal credit on that page.
 How the ISO was built, and on which workstation, is in
 [docs/build.md](docs/build.md). The files added on top of Ubuntu, and why
 each one is there, are in [docs/changes.md](docs/changes.md). The files
-themselves are in [overlay/](overlay/).
+themselves are in [overlay/](overlay/). Video acceleration, and why the
+Firefox and Chromium snaps do not use the NVIDIA GPU, is in
+[docs/video.md](docs/video.md).
 
 ## Update the BIOS to 303 first
 
@@ -73,11 +75,12 @@ On the live desktop, after GRUB option 3:
 - The webcam works.
 - The GNOME desktop runs on the NVIDIA GPU. `gnome-shell` and Xwayland are GPU clients.
 - The GNOME brightness slider changes the panel brightness.
+- Firefox video uses the NVIDIA decoder after the steps in [docs/video.md](docs/video.md). On this laptop, 1440p playback in Firefox 158 is smooth. The flashed image still has the older decoder and Firefox 143, so those steps come after the install.
 
 ## What does not work yet
 
 - The screen brightness keys do not change the panel. Use the GNOME brightness slider.
-- The image's video decoder does not allocate surfaces. It ships `nvidia-vaapi-driver` 0.0.16, which asks for local framebuffer memory on a GPU that has none, so NVDEC stays idle. After install, add [debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb](debs/nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb). That is upstream 0.0.17 and uses system memory. On this laptop a 4K H.264 file then decoded on NVDEC. The package does not replace kernel `7.3.0-rc6-n1x+`. Firefox 143 still draws each frame through XWayland, so the browser picture is still copied through main memory after decode. Chromium on Wayland is smoother and still hitches: the snap does not receive `libnvidia-rmapi-tegra`, so it builds the picture on the CPU and hands the result to GNOME. Details are in [docs/desktop.md](docs/desktop.md) and [debs/README.md](debs/README.md).
+- The Firefox snap and the Chromium snap do not load `libnvidia-rmapi-tegra`, so a browser installed from the store draws on the CPU. Use the Mozilla tarball and the Chrome `.deb` in [docs/video.md](docs/video.md). The store packages do not grow into the NVIDIA path on their own.
 
 Firmware lines that remain in `dmesg` after a successful boot are listed in
 [docs/firmware-messages.md](docs/firmware-messages.md).
@@ -215,17 +218,12 @@ apt-mark showhold
 
 `uname -r` should print `7.3.0-rc6-n1x+`.
 
-The kernel package is already the one this laptop needs. The video fix is
-a userspace library, not a new kernel. After the install, add the VA-API
-package from [debs/](debs/README.md):
-
-```sh
-sudo dpkg -i nvidia-vaapi-driver_0.0.17-0n1x_arm64.deb
-```
-
-That replaces `dri/nvidia_drv_video.so` and leaves `7.3.0-rc6-n1x+` in place.
-A kernel `.deb` is about 150 MB, past GitHub's file limit, and rebuilding
-the kernel does not contain this library.
+The kernel package is already the one this laptop needs. Video acceleration
+is userspace: a newer VA-API library, Firefox 158 from Mozilla's tarball,
+and Google Chrome from its `.deb`. The snaps do not see the NVIDIA library.
+The steps, and the result (smooth 1440p in Firefox on this laptop), are in
+[docs/video.md](docs/video.md). A kernel `.deb` is about 150 MB, past
+GitHub's file limit, and rebuilding the kernel does not contain that library.
 
 ## Memory
 
@@ -262,7 +260,8 @@ The steps are in [docs/build.md](docs/build.md).
 - [Credits and upstream code](docs/credits.md)
 - [Build the ISO](docs/build.md)
 - [Boot command line](docs/boot.md)
-- [Desktop, GPU and the unfinished video path](docs/desktop.md)
+- [Desktop and GPU](docs/desktop.md)
+- [Video acceleration](docs/video.md)
 - [Memory](docs/memory.md)
 - [What the installer keeps](docs/install.md)
 - [Firmware messages that stay in dmesg](docs/firmware-messages.md)

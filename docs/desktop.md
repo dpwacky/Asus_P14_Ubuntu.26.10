@@ -55,28 +55,25 @@ stays `7.3.0-rc6-n1x+`. On this laptop, 0.0.16 logged
 0.0.17 decoded, and a 3840x2160 H.264 stream drove the NVDEC clock
 (decoder utilisation about 70% during the run).
 
-Playback in Firefox is still a separate limit. Firefox 143 shows each
-decoded frame through XWayland, so the picture is copied through main
-memory. Chromium on Wayland is smoother and still hitches, because the
-snap does not receive `libnvidia-rmapi-tegra` and composites on the CPU.
+The image menu still starts Firefox 143 with `MOZ_ENABLE_WAYLAND=0`,
+because that build crashes on mutter 51's `wp_image_description_v1`. Frames
+then travel through XWayland. Firefox 158 from the Mozilla aarch64 tarball,
+started with `MOZ_ENABLE_WAYLAND=1`, is a native Wayland client on the host
+NVIDIA libraries. On this laptop, 1440p playback in that Firefox is smooth.
+The Firefox snap and the Chromium snap never see
+`libnvidia-rmapi-tegra`, so installing them from the store leaves the page
+on the CPU. The exact downloads, the menu edits, and the Chrome `.deb`
+launcher are in [video.md](video.md).
 
-Firefox 143 is the Mozilla aarch64 tarball in `/opt/firefox`. The menu
-entry is `/usr/local/share/applications/firefox_firefox.desktop` and starts
-that binary. The Ubuntu Firefox snap is installed, and it is not the menu
-entry. Snap confinement leaves out `libnvidia-rmapi-tegra`, so the snap
-draws with Mesa and does not show up in `nvidia-smi`. Policies in
-`/opt/firefox/distribution/policies.json` lock
+Policies in `/opt/firefox/distribution/policies.json` lock
 `media.hardware-video-decoding.force-enabled`. The preference
-`media.ffmpeg.vaapi.enabled` does not exist in this Firefox.
-`MOZ_ENABLE_WAYLAND=0` is set on that desktop entry only, because this
-build crashes on mutter 51's `wp_image_description_v1`.
+`media.ffmpeg.vaapi.enabled` does not exist in Firefox 143.
 `LIBVA_DRIVER_NAME=nvidia` and `MOZ_DISABLE_RDD_SANDBOX=1` are in
 `/etc/environment`. The second one lets the decoder open the render node.
+Copy the policies file onto Firefox 158, as [video.md](video.md) does.
 
-The tarball dlopens `libavcodec.so.61` at most. Ubuntu 26.10 has
-`libavcodec62`, so decode stays on the bundled ffvpx plus VA-API. Firefox
-gives its `vaapitest` helper two seconds. A manual run prints
-`VAAPI_SUPPORTED`. Under `strace` the helper exceeds that limit.
+The 143 tarball dlopens `libavcodec.so.61` at most. Ubuntu 26.10 has
+`libavcodec62`, so that build stays on its bundled ffvpx plus VA-API.
 
 ## Touchpad
 

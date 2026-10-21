@@ -37,7 +37,8 @@ Checked on this laptop with kernel `7.3.0-rc6-n1x+` and NVIDIA 615.78.08.
 through VA-API and `nvidia-smi` showed the decoder in use (about 70% for
 part of the run, video clock around 2281 MHz).
 
-Firefox 143 in the menu still draws through XWayland, so a browser frame
-is still copied through main memory after it is decoded. That copy is
-separate from this package. Players that take VA-API directly (ffmpeg,
-and mpv once it is installed) use the decoder without that copy.
+This package is the decoder half. The browsers still need a build that can
+see `libnvidia-rmapi-tegra`. The Firefox snap and the Chromium snap cannot.
+Firefox 158 from the Mozilla tarball, with Wayland left on, plays 1440p
+smoothly on this laptop once this package is installed. The downloads and
+the menu commands are in [docs/video.md](../docs/video.md).

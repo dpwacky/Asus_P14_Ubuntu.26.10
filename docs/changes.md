@@ -193,6 +193,12 @@ workstation, and it replaces
 `sudo dpkg -i` is enough. It does not upgrade or replace
 `linux-image-7.3.0-rc6-n1x`. See [debs/README.md](../debs/README.md).
 
+The menu Firefox in `overlay/` is still 143 with `MOZ_ENABLE_WAYLAND=0`,
+because that binary crashes as a Wayland client. Snaps do not receive
+`libnvidia-rmapi-tegra`, so the store Firefox and Chromium stay on the CPU.
+The working setup is Firefox 158 and the Chrome `.deb`, written up in
+[video.md](video.md). Those two browsers are not files in `overlay/`.
+
 ## What is not in `overlay/`
 
 The kernel is Ubuntu 7.3.0-9.9 plus the Omarchy N1X series plus Josephine's
