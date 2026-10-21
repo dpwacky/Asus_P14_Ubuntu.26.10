@@ -240,7 +240,7 @@ work in ChatGPT. Full links and commits are in
 
 Rebuilding the ISO wants an x86_64 Ubuntu workstation with a cross compiler,
 a lot of disk, and the upstream trees above. The machine I used is an ASUS
-ROG STRIX X870-F with a Ryzen 9 9950X3D, 96 GB of RAM and Ubuntu 24.04.5.
+ROG STRIX X870-F with a Ryzen 9 9950X3D2, 96 GB of RAM and Ubuntu 24.04.5.
 The steps are in [docs/build.md](docs/build.md).
 
 ## More detail

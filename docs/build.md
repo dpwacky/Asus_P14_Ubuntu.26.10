@@ -18,7 +18,7 @@ The image was built on my desktop, not on the laptop.
 | Item | Value |
 | --- | --- |
 | Board | ASUS ROG STRIX X870-F GAMING WIFI |
-| CPU | AMD Ryzen 9 9950X3D, 16 cores / 32 threads |
+| CPU | AMD Ryzen 9 9950X3D2, 16 cores / 32 threads |
 | Memory | 96 GB |
 | Disk | about 1.8 TB, with a few hundred GB free while building |
 | OS | Ubuntu 24.04.5 LTS, x86_64 |
