@@ -84,6 +84,15 @@ These stay on the stick and do not define the installed system:
 The installed GDM config has automatic login turned off. The account
 created by the installer is the one that logs in.
 
+## After the first boot from the NVMe
+
+Install `linux-image-7.3.0-rc6-n1x-64m` before you treat the machine as
+finished. The ISO kernel stops at a 4 MiB contiguous allocation. The
+package raises that to 64 MiB, which is what 4K video planes need. Download
+it from
+[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+and follow [kernel.md](kernel.md). The ISO kernel stays in the GRUB menu.
+
 The squashfs for this image is built with `-all-root` and the two pseudo
 files `pseudo-owner.txt` and `pseudo-xattr.txt`. An unprivileged unpack
 lands as uid 1000, with no setuid bit on `nvidia-modprobe` and no file

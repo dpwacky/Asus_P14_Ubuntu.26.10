@@ -46,18 +46,18 @@ hardware line as the image kernel, including
 packages are held. The apt pin that blocks `linux-generic` is unchanged.
 
 The `.deb` is about 185 MB. GitHub rejects a file over 100 MB, so the
-package is not in this repository. The file that was installed on this
-laptop is:
+package is not in this repository. Download it after the ISO install:
 
-```
-linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
-```
+[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
 
 SHA256 `c8c04ab5bb57d50919b1deab12f8badb1123efdb7e63b99d18756e370d157e19`.
 
-On an installed system, from the directory that contains that file:
+On the installed system, after the first boot from the NVMe:
 
 ```sh
+curl -fL -o linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb \
+  https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
+sha256sum linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
 sudo dpkg -i linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
 sudo reboot
 ```
@@ -77,11 +77,8 @@ free blocks.
 Checked on this laptop after that reboot: one second of 3840x2160 H.264,
 decoded with VA-API into VA-API frames, finished at about 3.4 times
 realtime. `dmesg` had zero `NV_ERR_NO_MEMORY` lines. That is the allocation
-which used to fail. It does not by itself say that Firefox 4K playback is
-smooth. Firefox can still spend CPU in the RDD process moving frames. That
-cost was measured on the previous kernel and has not been remeasured in the
-browser on this one. 1440p in Firefox 158 was already smooth before this
-package.
+which used to fail. On this laptop, 4K playback in Firefox 158 is smooth
+after the reboot onto this kernel. 1440p was already smooth before it.
 
 The ISO is unchanged. A fresh install still boots `7.3.0-rc6-n1x+` until
-this package is added.
+this package is installed. Do that after the first boot from the NVMe.

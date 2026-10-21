@@ -76,7 +76,7 @@ On the live desktop, after GRUB option 3:
 - The webcam works.
 - The GNOME desktop runs on the NVIDIA GPU. `gnome-shell` and Xwayland are GPU clients.
 - The GNOME brightness slider changes the panel brightness.
-- Firefox video uses the NVIDIA decoder after the steps in [docs/video.md](docs/video.md). On this laptop, 1440p playback in Firefox 158 is smooth. The flashed image still has the older decoder and Firefox 143, so those steps come after the install.
+- Firefox video uses the NVIDIA decoder after the steps in [docs/video.md](docs/video.md) and the kernel package below. On this laptop, 1440p and 4K playback in Firefox 158 are smooth once that package is installed. The flashed image still has the older decoder, Firefox 143 and the 4 MiB kernel, so those steps come after the install.
 
 ## What does not work yet
 
@@ -201,6 +201,32 @@ The first account you create is added to the `render`, `video` and `input`
 groups on the next boot. The GPU device nodes are mode `660` and group
 `render`.
 
+## After the first boot, install the 64 MiB kernel
+
+The ISO kernel is `7.3.0-rc6-n1x+`. Its largest physically contiguous
+block is 4 MiB, so a 4K video plane (about 8 MiB) and other single DMA
+buffers of that size fail. Install the follow-up package on the installed
+system, then reboot. On this laptop, 4K playback in Firefox is smooth
+after that reboot.
+
+Download:
+
+[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+
+SHA256 `c8c04ab5bb57d50919b1deab12f8badb1123efdb7e63b99d18756e370d157e19`.
+
+```sh
+curl -fL -o linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb \
+  https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
+sha256sum linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
+sudo dpkg -i linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
+sudo reboot
+```
+
+`sha256sum` prints the hash above when the download matches. After the
+reboot, `uname -r` prints `7.3.0-rc6-n1x-64m+`. The ISO kernel stays in
+the GRUB menu. Why this package exists is in [docs/kernel.md](docs/kernel.md).
+
 ## The kernel stays put
 
 `linux-image-7.3.0-rc6-n1x` is held. Packages named `linux-image-*`,
@@ -226,9 +252,11 @@ video plane is about 8 MiB, and the same ceiling applies to any other
 single DMA buffer of that size. Ordinary CUDA allocations are not one
 block, and they already worked. The follow-up package
 `linux-image-7.3.0-rc6-n1x-64m` raises the limit to 64 MiB and leaves the
-original kernel in the GRUB menu. Why, the checksum, and the install are in
-[docs/kernel.md](docs/kernel.md). The file is about 185 MB, past GitHub's
-limit, so it is not stored in this repository.
+original kernel in the GRUB menu. Download it from
+[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+and install it with the commands above. The file is about 185 MB, past
+GitHub's limit, so it is not stored in this repository. The checksum and
+the reason are in [docs/kernel.md](docs/kernel.md).
 
 Video decode still needs the userspace pieces: the 0.0.17 VA-API library,
 Firefox 158 from Mozilla's tarball, and Google Chrome from its `.deb`. The

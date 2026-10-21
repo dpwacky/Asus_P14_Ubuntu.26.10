@@ -6,9 +6,11 @@ does not replace that kernel. `apt upgrade` still will not pull
 `overlay/etc/apt/preferences.d/n1x-kernel`.
 
 A second kernel, `linux-image-7.3.0-rc6-n1x-64m`, raises the largest
-physically contiguous allocation from 4 MiB to 64 MiB. The `.deb` is about
-185 MB, over GitHub's file limit, so it is not in this directory. The
-filename, the SHA256, and why the image kernel was not enough are in
+physically contiguous allocation from 4 MiB to 64 MiB. Install it after
+the ISO is on the NVMe. The `.deb` is about 185 MB, over GitHub's file
+limit, so it is not in this directory. Download it from
+[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb).
+The SHA256 and the reason the image kernel was not enough are in
 [docs/kernel.md](../docs/kernel.md). Installing it keeps
 `7.3.0-rc6-n1x+` in the GRUB menu.
 

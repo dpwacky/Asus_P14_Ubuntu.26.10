@@ -212,4 +212,7 @@ is large and is not published here. Credit and the upstream links are in
 `CONFIG_ARCH_FORCE_MAX_ORDER=14` (a 64 MiB physically contiguous block,
 instead of 4 MiB) and the NVIDIA open modules rebuilt for that release.
 It is a post-install package. It is not in the ISO and not in this
-repository: the `.deb` is about 185 MB. See [kernel.md](kernel.md).
+repository: the `.deb` is about 185 MB. After the first boot from the
+NVMe, download it from
+[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+and install it. See [kernel.md](kernel.md).
