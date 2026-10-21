@@ -60,6 +60,8 @@ because that build crashes on mutter 51's `wp_image_description_v1`. Frames
 then travel through XWayland. Firefox 158 from the Mozilla aarch64 tarball,
 started with `MOZ_ENABLE_WAYLAND=1`, is a native Wayland client on the host
 NVIDIA libraries. On this laptop, 1440p playback in that Firefox is smooth.
+4K playback in the same Firefox is smooth after the kernel in
+[kernel.md](kernel.md).
 The Firefox snap and the Chromium snap never see
 `libnvidia-rmapi-tegra`, so installing them from the store leaves the page
 on the CPU. The exact downloads, the menu edits, and the Chrome `.deb`

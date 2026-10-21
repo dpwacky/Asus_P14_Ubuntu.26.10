@@ -108,7 +108,9 @@ is hidden so there is one icon.
 
 `LIBVA_DRIVER_NAME=nvidia` selects `nvidia_drv_video.so`.
 `MOZ_DISABLE_RDD_SANDBOX=1` lets the decoder process open the render node.
-The policies lock hardware video decoding on. Playback is still not smooth.
+The policies lock hardware video decoding on for that Firefox 143 entry.
+Smooth 1440p and 4K playback is the Firefox 158 setup in
+[video.md](video.md), after the kernel package, not this menu entry.
 See [desktop.md](desktop.md).
 
 ## Speakers
@@ -124,13 +126,24 @@ The `conf.d` symlink is how ALSA finds the card.
 ## Keyboard function keys
 
 `overlay/etc/modprobe.d/hid_asus.conf`
+`overlay/usr/lib/modprobe.d/hid-asus-p14.conf`
 `overlay/etc/modules-load.d/n1x-input.conf`
 
-`hid_asus` has to be loaded for the internal keyboard `0B05:4B42`.
-`fnlock_default=0` leaves F1-F12 as function keys, matching Windows, with
-Fn-lock as the toggle. The modules file also loads `i2c_mt65xx` and
-`i2c_hid_acpi`, which is the bus the keyboard and the touchpad sit on once
-SSPM is visible.
+`hid_asus` has to be loaded for the internal keyboard `0B05:4B42`. The
+driver default and both files set `fnlock_default=1`. That is the state in
+which volume and the other working Fn shortcuts are reported. Setting the
+parameter to 0 was tried on this laptop and those shortcuts stopped,
+including volume. `hid-asus` loads from the initrd, so the file under
+`/usr/lib/modprobe.d` is the one that takes effect. The copy under
+`/etc/modprobe.d` is read too late. The published ISO may still contain
+`fnlock_default=0` in `/etc` only. That file is not in the ISO initrd, so
+the stick boots with the driver default, which is on.
+
+A few Fn-row keys still do nothing with the lock left on. The screen
+brightness keys are among them. The GNOME slider changes the panel. Volume
+and the keyboard backlight work. The modules file also loads `i2c_mt65xx`
+and `i2c_hid_acpi`, which is the bus the keyboard and the touchpad sit on
+once SSPM is visible.
 
 ## Windows NTFS volumes
 
@@ -146,7 +159,9 @@ inside the initrd, not only on the root filesystem.
 `overlay/etc/udev/rules.d/71-n1x-usb4-root-ports.rules`
 
 The tunnel root ports `10de:22cf` cannot wake for a hotplug. The rule holds
-them out of runtime suspend (`power/control=on`).
+them out of runtime suspend (`power/control=on`). Sleep and a second
+DisplayPort teardown are handled in the follow-up kernel, not in this
+file. See [kernel.md](kernel.md).
 
 ## Installer kernel package
 
@@ -208,11 +223,15 @@ is large and is not published here. Credit and the upstream links are in
 615.78.08. Do not replace them with Ubuntu's `libnvidia-gl-615`
 (615.71.09).
 
-`linux-image-7.3.0-rc6-n1x-64m` is the same tree with
+`linux-image-7.3.0-rc6-n1x-64m.2` is the same tree with
 `CONFIG_ARCH_FORCE_MAX_ORDER=14` (a 64 MiB physically contiguous block,
-instead of 4 MiB) and the NVIDIA open modules rebuilt for that release.
-It is a post-install package. It is not in the ISO and not in this
+instead of 4 MiB), Thunderbolt fixes 1085 and 1086, and the NVIDIA open
+modules rebuilt for that release. 1085 keeps USB4 tunnels across system
+sleep on the N1x routers. 1086 waits 100 ms between DisplayPort tunnel
+teardowns so a second monitor is not left dark. The three probe-time
+`RX overflow` lines stay. No dock was attached when this package was
+checked. It is a post-install package. It is not in the ISO and not in this
 repository: the `.deb` is about 185 MB. After the first boot from the
 NVMe, download it from
-[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb)
 and install it. See [kernel.md](kernel.md).

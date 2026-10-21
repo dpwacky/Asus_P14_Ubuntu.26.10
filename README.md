@@ -3,9 +3,9 @@
 This is a hobby project, and this release is a beta. I have run Ubuntu on
 my workstations and servers for a long time, and I wanted the same thing
 on this laptop: a normal Ubuntu desktop, on the disk, with the kernel I
-actually boot. The installer and the desktop do start. The machine does
-not feel like a finished Ubuntu laptop. Read the limits below before you
-wipe a disk you still need.
+actually boot. The installer and the desktop start. After the kernel package below, this
+laptop runs as a normal Ubuntu machine. A few Fn keys still do nothing.
+Read that limit before you wipe a disk you still need.
 
 The machine is the ASUS ProArt P14 with the NVIDIA N1X, model H7407BA,
 128 GB of memory. The image starts a GNOME session on the NVIDIA GPU and
@@ -80,7 +80,7 @@ On the live desktop, after GRUB option 3:
 
 ## What does not work yet
 
-- The screen brightness keys do not change the panel. Use the GNOME brightness slider.
+- A few Fn-row keys still do nothing. The screen brightness keys are among them. The GNOME brightness slider changes the panel. Volume and the keyboard backlight work. Setting `hid_asus fnlock_default=0` stops the shortcuts that do work, so the follow-up kernel leaves Fn-lock on.
 - The Firefox snap and the Chromium snap do not load `libnvidia-rmapi-tegra`, so a browser installed from the store draws on the CPU. Use the Mozilla tarball and the Chrome `.deb` in [docs/video.md](docs/video.md). The store packages do not grow into the NVIDIA path on their own.
 
 Firmware lines that remain in `dmesg` after a successful boot are listed in
@@ -98,7 +98,7 @@ Firmware lines that remain in `dmesg` after a successful boot are listed in
 | Piece | Version |
 | --- | --- |
 | Kernel on the ISO | `7.3.0-rc6-n1x+`, package `linux-image-7.3.0-rc6-n1x` |
-| Later kernel, not in the ISO | `7.3.0-rc6-n1x-64m+`, 64 MiB contiguous blocks. See [docs/kernel.md](docs/kernel.md) |
+| Later kernel, not in the ISO | `7.3.0-rc6-n1x-64m.2+`, package `linux-image-7.3.0-rc6-n1x-64m.2` version `7.3.0-rc6.64m.3`. 64 MiB contiguous blocks and the USB4 sleep and DisplayPort fixes. See [docs/kernel.md](docs/kernel.md) |
 | Base | Ubuntu 26.10 (7.3.0-9.9) plus the N1X platform patches |
 | NVIDIA open modules and userspace | 615.78.08 |
 | Desktop | Ubuntu 26.10 GNOME |
@@ -206,26 +206,28 @@ groups on the next boot. The GPU device nodes are mode `660` and group
 The ISO kernel is `7.3.0-rc6-n1x+`. Its largest physically contiguous
 block is 4 MiB, so a 4K video plane (about 8 MiB) and other single DMA
 buffers of that size fail. Install the follow-up package on the installed
-system, then reboot. On this laptop, 4K playback in Firefox is smooth
-after that reboot.
+system, then reboot. It keeps the 64 MiB blocks, and it adds the USB4
+fixes in [docs/kernel.md](docs/kernel.md). On this laptop, 4K playback in
+Firefox is smooth after that reboot.
 
 Download:
 
-[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb)
 
-SHA256 `c8c04ab5bb57d50919b1deab12f8badb1123efdb7e63b99d18756e370d157e19`.
+SHA256 `1073589ef162f0196aca79253e9f65bd4a831b0d7b0ae49f519fb9c538c67239`.
 
 ```sh
-curl -fL -o linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb \
-  https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
-sha256sum linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
-sudo dpkg -i linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb
+curl -fL -o linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb \
+  https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb
+sha256sum linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb
+sudo dpkg -i linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb
 sudo reboot
 ```
 
 `sha256sum` prints the hash above when the download matches. After the
-reboot, `uname -r` prints `7.3.0-rc6-n1x-64m+`. The ISO kernel stays in
-the GRUB menu. Why this package exists is in [docs/kernel.md](docs/kernel.md).
+reboot, `uname -r` prints `7.3.0-rc6-n1x-64m.2+`. The ISO kernel stays in
+the GRUB menu. An earlier 64 MiB package, if it was already installed,
+stays there too. Why this package exists is in [docs/kernel.md](docs/kernel.md).
 
 ## The kernel stays put
 
@@ -251,9 +253,10 @@ cannot hand out one physically contiguous block larger than 4 MiB. A 4K
 video plane is about 8 MiB, and the same ceiling applies to any other
 single DMA buffer of that size. Ordinary CUDA allocations are not one
 block, and they already worked. The follow-up package
-`linux-image-7.3.0-rc6-n1x-64m` raises the limit to 64 MiB and leaves the
-original kernel in the GRUB menu. Download it from
-[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+`linux-image-7.3.0-rc6-n1x-64m.2` raises the limit to 64 MiB, adds the
+USB4 fixes, and leaves the original kernel in the GRUB menu. Download it
+from
+[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb)
 and install it with the commands above. The file is about 185 MB, past
 GitHub's limit, so it is not stored in this repository. The checksum and
 the reason are in [docs/kernel.md](docs/kernel.md).

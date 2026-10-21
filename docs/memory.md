@@ -47,7 +47,7 @@ block is 4 MiB (`CONFIG_ARCH_FORCE_MAX_ORDER=10`, 4 KiB pages). The open
 NVIDIA driver uses that path for a VA-API frame plane and for other DMA
 buffers it will not split. A 4K luma plane is about 8 MiB and was rejected
 with `NV_ERR_NO_MEMORY` while most of the RAM was free.
-`linux-image-7.3.0-rc6-n1x-64m` raises the same limit to 64 MiB. The
+`linux-image-7.3.0-rc6-n1x-64m.2` raises the same limit to 64 MiB. The
 package, the check, and the fact that the ISO kernel is unchanged are in
 [kernel.md](kernel.md).
 

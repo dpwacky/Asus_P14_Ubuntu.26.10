@@ -86,11 +86,11 @@ created by the installer is the one that logs in.
 
 ## After the first boot from the NVMe
 
-Install `linux-image-7.3.0-rc6-n1x-64m` before you treat the machine as
+Install `linux-image-7.3.0-rc6-n1x-64m.2` before you treat the machine as
 finished. The ISO kernel stops at a 4 MiB contiguous allocation. The
-package raises that to 64 MiB, which is what 4K video planes need. Download
-it from
-[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
+package raises that to 64 MiB, which is what 4K video planes need, and it
+adds the USB4 sleep and DisplayPort teardown fixes. Download it from
+[https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb)
 and follow [kernel.md](kernel.md). The ISO kernel stays in the GRUB menu.
 
 The squashfs for this image is built with `-all-root` and the two pseudo

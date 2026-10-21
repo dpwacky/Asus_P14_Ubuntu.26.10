@@ -152,9 +152,10 @@ libraries alone.
 The image kernel's largest physically contiguous allocation is 4 MiB. A 4K
 luma plane is about 8 MiB, so 0.0.17 can decode and still log
 `NV_ERR_NO_MEMORY` for that plane. After the ISO install, install
-`linux-image-7.3.0-rc6-n1x-64m` from
-[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m_7.3.0-rc6.64m_arm64.deb)
-and reboot. That kernel raises the limit to 64 MiB. On this laptop, one
-second of 3840x2160 H.264 then decoded through VA-API with no
-`NV_ERR_NO_MEMORY` in `dmesg`, and 4K playback in Firefox 158 is smooth.
+`linux-image-7.3.0-rc6-n1x-64m.2` from
+[ponne.nu](https://www.ponne.nu/linux-image-7.3.0-rc6-n1x-64m.2_7.3.0-rc6.64m.3_arm64.deb)
+and reboot. `uname -r` is then `7.3.0-rc6-n1x-64m.2+`. That kernel raises
+the limit to 64 MiB. On this laptop, with that limit, one second of
+3840x2160 H.264 decoded through VA-API with no `NV_ERR_NO_MEMORY` in
+`dmesg`, and 4K playback in Firefox 158 is smooth.
 The download and the checksum are in [kernel.md](kernel.md).

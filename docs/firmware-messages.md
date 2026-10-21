@@ -11,7 +11,7 @@ against a device that already works. The image does not try to silence them.
 | `mpam: No MSC devices found in firmware` | This SoC has no MPAM MSC. |
 | `i2c_hid_acpi ... incorrect report (255 vs 11/7/14)` | PixArt feature report the pad does not serve. The libinput quirk is what makes the cursor move. |
 | `hid-multitouch 222A:5553: failed to fetch feature` | Same class. The touchscreen works. |
-| `asus 0B05:4B42: Asus handshake a returned invalid response` | hid-asus still binds the keyboard. |
+| `asus 0B05:4B42: Asus handshake 5a returned invalid response` | The reply is 64 zero bytes. hid-asus still binds the keyboard, and the keys that work still work. |
 | `usb usb2-port1: Failed to created device link ... NVDA8100` | USB4 device link during probe. USB ethernet on that bus works. |
 | `mtk_sdw_mc ... -517` | `-EPROBE_DEFER` until the CS42L43 and CS35L56 slaves attach. |
 | `driver name too long 'mt8901-soundwire' -> 'mt8901-soundwir'` | The kernel truncates the card name. UCM uses the truncated name. |
@@ -19,7 +19,7 @@ against a device that already works. The image does not try to silence them.
 | `supply VDD_* not found, using dummy regulator` | The DSDT does not describe the Cirrus rails. The codecs still probe. |
 | `gpio: Failed to set debounce-timeout: -22` | One debounce request is rejected. Keys and the pad work. |
 | `arm-smmu-v3: 2-level strtab` / `no priq irq` | SMMU geometry. `iommu.passthrough=1` is set. |
-| `thunderbolt-platform NVDA8100: RX overflow` | A few events at probe. |
+| `thunderbolt-platform NVDA8100: RX overflow for ring 0` | Three lines, once per router, at probe. Still present on `7.3.0-rc6-n1x-64m.2+`. USB4 fixes 1085 and 1086 do not remove them. |
 | `HCI Enhanced Setup Synchronous Connection ... not supported` | The chip advertises a command it does not implement. hci0 registers. |
 | `DMA mask not set` | HID sensor and the Cirrus platform devices. Drivers continue. |
 | `nvidia: loading out-of-tree module taints kernel` | The open module is unsigned. |
